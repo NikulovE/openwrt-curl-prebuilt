@@ -16,7 +16,7 @@ jobs:
         arch:
           - aarch64_cortex-a53
         tag:
-          - openwrt-23.05
+          - openwrt-23.05.4
 
     steps:
       - uses: actions/checkout@v4
