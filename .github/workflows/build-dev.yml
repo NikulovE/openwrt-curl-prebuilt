@@ -16,7 +16,7 @@ jobs:
         arch:
           - aarch64_cortex-a53
         tag:
-          - DEV
+          - SNAPSHOT
 
     steps:
       - uses: actions/checkout@v4
