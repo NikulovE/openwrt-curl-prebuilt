@@ -17,7 +17,7 @@ jobs:
           - aarch64_cortex-a53
           - x86_64
         tag:
-          - openwrt-23.05
+          - SNAPSHOT
 
     steps:
       - uses: actions/checkout@v4
