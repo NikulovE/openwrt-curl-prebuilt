@@ -31,7 +31,6 @@ jobs:
           sed -i 's/default LIBCURL_MBEDTLS/default LIBCURL_OPENSSL/g' curl/Config.in
           sed -i '/config LIBCURL_NGHTTP3/,+3 s/default n/default y/' curl/Config.in
           sed -i '/config LIBCURL_OPENSSL_QUIC/,+3 s/default n/default y/' curl/Config.in
-          sed -i '/config CONFIG_LIBCURL_WOLFSSL/,+3 s/default n/default y/' curl/Config.in
           # version
           curl_version=$(grep -Po '(?<=PKG_VERSION:=).*' curl/Makefile)
           echo "curl_version=$curl_version" >> "$GITHUB_ENV"
