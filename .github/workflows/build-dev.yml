@@ -40,6 +40,13 @@ jobs:
           # openssl 3.2
           git clone https://github.com/sbwml/package_libs_openssl -b openssl-3.2 openssl
 
+      - name: Debug Build Environment
+        run: |
+          env
+          ls -R
+          cat curl/Config.in
+          cat curl/Makefile
+
       - name: Build Packages
         uses: sbwml/openwrt-gh-action-sdk@curl
         env:
