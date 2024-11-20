@@ -20,38 +20,41 @@ jobs:
           - SNAPSHOT
 
     steps:
+      # Шаг 1. Клонирование репозитория
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # Шаг 2. Загрузка исходников и настройка зависимостей
       - name: Download Source
         run: |
-          # curl
+          # Клонирование исходников curl
           git clone https://github.com/sbwml/feeds_packages_net_curl curl
-          # curl: enable OpenSSL
+          # Включение OpenSSL
           sed -i 's/default LIBCURL_MBEDTLS/default LIBCURL_OPENSSL/g' curl/Config.in
-          # Temporarily disable QUIC and HTTP/3 for debugging
+          # Временно отключаем QUIC и HTTP/3 для отладки
           sed -i '/config LIBCURL_NGHTTP3/,+3 s/default y/default n/' curl/Config.in
           sed -i '/config LIBCURL_OPENSSL_QUIC/,+3 s/default y/default n/' curl/Config.in
-          # version
+          # Версия curl
           curl_version=$(grep -Po '(?<=PKG_VERSION:=).*' curl/Makefile)
           echo "curl_version=$curl_version" >> "$GITHUB_ENV"
-          # depends
+          # Клонирование зависимостей
           git clone https://github.com/sbwml/package_libs_nghttp3 nghttp3
-          # openssl 3.2
           git clone https://github.com/sbwml/package_libs_openssl -b openssl-3.2 openssl
 
+      # Шаг 3. Отладка окружения
       - name: Debug Build Environment
         run: |
-          echo "Environment variables:"
+          echo "=== Окружение ==="
           env
-          echo "Directory structure:"
+          echo "=== Структура директорий ==="
           ls -R
-          echo "curl/Config.in content:"
+          echo "=== Содержимое curl/Config.in ==="
           cat curl/Config.in
-          echo "curl/Makefile content:"
+          echo "=== Содержимое curl/Makefile ==="
           cat curl/Makefile
 
+      # Шаг 4. Сборка пакетов
       - name: Build Packages
         uses: sbwml/openwrt-gh-action-sdk@curl
         env:
@@ -61,16 +64,19 @@ jobs:
           NO_REFRESH_CHECK: true
           IGNORE_ERRORS: false
 
+      # Шаг 5. Отладка ошибок сборки (если произошла ошибка)
       - name: Debug Build Logs
         if: failure()
         run: |
-          echo "Fetching build logs for debugging..."
-          cat logs/* || echo "No logs found"
+          echo "=== Ошибка сборки. Логи: ==="
+          cat logs/* || echo "Логи не найдены"
 
+      # Шаг 6. Создание архива
       - name: Create compress files
         run: |
           tar -zcvf curl-${{ env.curl_version }}-${{ matrix.arch }}.tar.gz -C bin/packages/${{ matrix.arch }}/ packages_ci
 
+      # Шаг 7. Публикация артефактов
       - name: Release packages
         uses: ncipollo/release-action@v1
         with:
