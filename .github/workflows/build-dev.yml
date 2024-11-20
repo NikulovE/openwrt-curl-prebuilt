@@ -28,11 +28,11 @@ jobs:
         run: |
           # curl
           git clone https://github.com/sbwml/feeds_packages_net_curl curl
-          # curl: enable nghttp3 & openssl quic
-          cat curl/Config.in
+          # curl: enable OpenSSL
           sed -i 's/default LIBCURL_MBEDTLS/default LIBCURL_OPENSSL/g' curl/Config.in
-          sed -i '/config LIBCURL_NGHTTP3/,+3 s/default n/default y/' curl/Config.in
-          sed -i '/config LIBCURL_OPENSSL_QUIC/,+3 s/default n/default y/' curl/Config.in
+          # Temporarily disable QUIC and HTTP/3 for debugging
+          sed -i '/config LIBCURL_NGHTTP3/,+3 s/default y/default n/' curl/Config.in
+          sed -i '/config LIBCURL_OPENSSL_QUIC/,+3 s/default y/default n/' curl/Config.in
           # version
           curl_version=$(grep -Po '(?<=PKG_VERSION:=).*' curl/Makefile)
           echo "curl_version=$curl_version" >> "$GITHUB_ENV"
@@ -43,9 +43,13 @@ jobs:
 
       - name: Debug Build Environment
         run: |
+          echo "Environment variables:"
           env
+          echo "Directory structure:"
           ls -R
+          echo "curl/Config.in content:"
           cat curl/Config.in
+          echo "curl/Makefile content:"
           cat curl/Makefile
 
       - name: Build Packages
@@ -56,6 +60,12 @@ jobs:
           PACKAGES: curl
           NO_REFRESH_CHECK: true
           IGNORE_ERRORS: false
+
+      - name: Debug Build Logs
+        if: failure()
+        run: |
+          echo "Fetching build logs for debugging..."
+          cat logs/* || echo "No logs found"
 
       - name: Create compress files
         run: |
