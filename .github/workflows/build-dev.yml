@@ -30,11 +30,10 @@ jobs:
         run: |
           # Клонирование исходников curl
           git clone https://github.com/sbwml/feeds_packages_net_curl curl
-          # Включение OpenSSL
+          # Включение OpenSSL, HTTP/3 и QUIC
           sed -i 's/default LIBCURL_MBEDTLS/default LIBCURL_OPENSSL/g' curl/Config.in
-          # Временно отключаем QUIC и HTTP/3 для отладки
-          sed -i '/config LIBCURL_NGHTTP3/,+3 s/default y/default n/' curl/Config.in
-          sed -i '/config LIBCURL_OPENSSL_QUIC/,+3 s/default y/default n/' curl/Config.in
+          sed -i '/config LIBCURL_NGHTTP3/,+3 s/default n/default y/' curl/Config.in
+          sed -i '/config LIBCURL_OPENSSL_QUIC/,+3 s/default n/default y/' curl/Config.in
           # Версия curl
           curl_version=$(grep -Po '(?<=PKG_VERSION:=).*' curl/Makefile)
           echo "curl_version=$curl_version" >> "$GITHUB_ENV"
